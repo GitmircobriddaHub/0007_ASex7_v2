@@ -1,0 +1,8 @@
+# DIRECT dependencies: the libraries this project really uses. Edit THIS file.
+# Versions are deliberately not pinned here: "update" (rebuild_venvs.ps1 -Update)
+# installs the newest ones, then rewrites requirements.txt with the exact versions.
+numpy
+matplotlib
+# scipy
+# pandas
+# astropy

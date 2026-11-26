@@ -1,0 +1,81 @@
+% =====================================================================
+% main.tex - two-column paper template (LaTeX + Python)
+% This is the ONLY LaTeX file in the project root: build this one.
+% Everything else lives in latex/ (header, bibliography, chapters,
+% figures, generated/ = written by Python).
+%
+% TWO INDEPENDENT SWITCHES:
+%   Layout:  \widetrue   -> title AND abstract span the full width
+%            \widefalse  -> abstract in the first column only
+%   Fonts:   \timestrue  -> Times for text, maths AND plots (mathptmx)
+%            \timesfalse -> Computer Modern for text, maths AND plots
+% (python/latexio.py reads the \timestrue/\timesfalse line, so the plots
+%  always match the paper fonts)
+% =====================================================================
+\documentclass[10pt,twocolumn]{article}
+
+\newif\ifwide
+\newif\iftimes
+\widetrue          % <-- layout:  \widetrue (layout 2)  or  \widefalse (layout 1)
+\timesfalse         % <-- fonts:   \timestrue (Times)    or  \timesfalse (Computer Modern)
+
+% Packages and custom commands. Use \input, not \include:
+% \include is only allowed after \begin{document}.
+\input{latex/header}
+
+\addbibresource{latex/references.bib}
+
+% Numbers computed by python/compute.py (\newcommand definitions).
+% This file is created when compute.py runs, i.e. at the first build.
+\input{latex/generated/numbers.tex}
+
+% ---------------------------------------------------------------------
+% Title block (superscripts appear automatically only when needed)
+% ---------------------------------------------------------------------
+\title{Working Title of the Paper}
+\author[1]{Mirco Bridda}
+%\author[2]{Second Author}
+\affil[1]{Department of Physics, University of Padova, Padova, Italy}
+%\affil[2]{Institute of Astronomy, University of Cambridge, Cambridge, UK}
+\date{\today}
+
+% The abstract text is defined once and used by both layouts.
+\newcommand{\abstracttext}{%
+  Write the abstract here. Lorem ipsum dolor sit amet, consectetur adipiscing
+  elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  The polarization of the CMB is a probe of the physics of last scattering
+  \cite{HW97}.%
+}
+
+\begin{document}
+
+  \makeatletter
+  \ifwide
+    \twocolumn[
+      \begin{@twocolumnfalse}
+        \maketitle
+        \begin{abstract}\abstracttext\end{abstract}
+        \vspace{1.5em}
+      \end{@twocolumnfalse}
+    ]
+  \else
+    \maketitle
+    \begin{abstract}\abstracttext\end{abstract}
+  \fi
+  \makeatother
+
+  % ---------------------------------------------------------------------
+
+  % Chapters/sections kept in their own files: latex/chapters/*.tex
+  % (\input, not \include: \include forces a page break).
+  \input{latex/chapters/1chapter.tex}
+  \input{latex/chapters/2chapter.tex}
+  \input{latex/chapters/3chapter.tex}
+  \input{latex/chapters/4chapter.tex}
+
+  % ---------------------------------------------------------------------
+  % Bibliography (biblatex + biber, entries in latex/references.bib)
+  % ---------------------------------------------------------------------
+  \printbibliography
+
+\end{document}

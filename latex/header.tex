@@ -1,0 +1,237 @@
+% =====================================================================
+% HEADER — pacchetti e comandi personalizzati
+% Riorganizzato per chiarezza ed efficienza di compilazione.
+% Sezioni:
+%   1. Codifica e layout di pagina
+%   2. Pacchetti matematici (AMS)
+%   3. Pacchetti attivamente usati nei capitoli
+%   4. Hyperref (va caricato quasi per ultimo)
+%   5. Bibliografia (biblatex + biber)
+%   6. Comandi personalizzati attivi
+%   7. NON UTILIZZATI nella compilazione attuale (non cancellati)
+%
+% Righe marcate [ADDED] = aggiunte per il layout a due colonne.
+% NB: questo file contiene \usepackage, quindi va caricato nel
+% preambolo con \input{latex/header}, NON con \include{...}.
+% =====================================================================
+
+
+% ---------------------------------------------------------------
+% 1. CODIFICA E LAYOUT DI PAGINA
+% ---------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[
+    a4paper,
+    left=1.9cm,                 % If you change margins/column spacing in
+    right=1.9cm,                % header.tex update the two width constants
+    top=2.0cm,                  % at the top of `python/latexio.py`.
+    bottom=2.0cm,
+    columnsep=0.7cm             % [ADDED] distanza tra le colonne
+]{geometry}
+
+% [ADDED] Font Times (testo + matematica), indipendente dal layout.
+% Il flag \iftimes e' definito in main.tex (\timestrue / \timesfalse).
+\iftimes
+    \usepackage{mathptmx}
+\fi
+
+
+% ---------------------------------------------------------------
+% 2. PACCHETTI MATEMATICI (AMS)
+% ---------------------------------------------------------------
+% Usati ovunque: \mathbb, \mathcal, align, aligned, \boldsymbol, ecc.
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ---------------------------------------------------------------
+% 3. PACCHETTI ATTIVAMENTE USATI NEI CAPITOLI
+% ---------------------------------------------------------------
+\usepackage{cancel}       % \cancel, \bcancel, \xcancel (usati in ch1 e ch2)
+
+\usepackage{comment}      % BUGFIX: mancava. Senza questo pacchetto gli
+                          % ambienti \begin{comment}...\end{comment} in
+                          % AxionEMLagrangian.tex non vengono riconosciuti:
+                              % LaTeX genera errori e IL TESTO VIENE COMUNQUE
+                          % STAMPATO nel PDF invece di essere nascosto.
+
+\usepackage{booktabs}     % [ADDED] tabelle generate da Python (\toprule, \midrule, \bottomrule)
+
+\usepackage{authblk}      % [ADDED] autori + affiliazioni (\author[1]{..}, \affil[1]{..})
+
+% [ADDED] Apici delle affiliazioni automatici.
+% Gli apici 1,2,... servono solo a dire "quale autore appartiene a quale
+% affiliazione". Hanno senso SOLO se ci sono almeno 2 autori E almeno 2
+% affiliazioni. In tutti gli altri casi vengono tolti:
+%   1 autore,  1 affiliazione  -> nessun apice
+%   1 autore,  2+ affiliazioni -> nessun apice (le affiliazioni sono tutte sue)
+%   2+ autori, 1 affiliazione  -> nessun apice (sono tutti li')
+%   2+ autori, 2+ affiliazioni -> apici
+% Si scrive come prima: \author[1]{..} \affil[1]{..}. Le etichette
+% vengono ignorate quando non servono.
+\makeatletter
+\newcount\autoNauth \newcount\autoNaff
+% authblk definisce \author e \affil con \newcommand[2][]: \let della macro
+% darebbe un "trampolino" che richiama il nome \author (cioe' questa
+% stessa ridefinizione). Si salvano quindi le macro interne (forma \macro[#1]{#2}).
+\expandafter\let\expandafter\autoInnerAuthor\csname\string\author\endcsname
+\expandafter\let\expandafter\autoInnerAffil\csname\string\affil\endcsname
+\def\autoMarked{}\def\autoPlain{}
+\renewcommand{\author}[2][]{%
+  \global\advance\autoNauth\@ne
+  \g@addto@macro\autoMarked{\autoInnerAuthor[#1]{#2}}%
+  \g@addto@macro\autoPlain{\autoInnerAuthor[]{#2}}}
+\renewcommand{\affil}[2][]{%
+  \global\advance\autoNaff\@ne
+  \g@addto@macro\autoMarked{\autoInnerAffil[#1]{#2}}%
+  \g@addto@macro\autoPlain{\autoInnerAffil[]{#2}}}
+\AtBeginDocument{%
+  \ifnum\autoNauth>\@ne
+    \ifnum\autoNaff>\@ne \autoMarked\else\autoPlain\fi
+  \else\autoPlain\fi}
+\makeatother
+
+\usepackage{xcolor}
+    \definecolor{d-blue}{HTML}{000022}   % usato in hyperref (link/cite color)
+    \definecolor{d-red}{HTML}{550000}
+    \definecolor{d-green}{HTML}{005500}
+    \definecolor{grey}{HTML}{888888}
+
+\usepackage[
+    colorlinks=true,
+    linkcolor=d-blue,
+    urlcolor=d-blue,
+    citecolor=d-blue
+]{hyperref}
+
+\makeatletter
+\renewcommand{\l@section}{\@dottedtocline{1}{1.0em}{1.8em}}
+\renewcommand{\l@subsection}{\@dottedtocline{2}{2.8em}{2.6em}}
+\renewcommand{\l@subsubsection}{\@dottedtocline{3}{5.4em}{3.4em}}
+\makeatother
+%\setlength{\parskip}{0pt}   % solo dentro il sommario, vedi sotto
+
+\usepackage{lipsum}
+
+
+
+
+% ---------------------------------------------------------------
+% 4. BIBLIOGRAFIA (biblatex + biber)
+% ---------------------------------------------------------------
+\usepackage{csquotes}     % raccomandato da biblatex per le citazioni testuali
+\usepackage[
+    backend=biber,
+    style=phys,          % stile APS-like per la fisica
+    sorting=none,        % ordine controllato da 'sortkey' nel .bib
+    biblabel=brackets,   % etichette [1], [2]... invece degli apici
+    doi=true,            % IMPORTANTE: 'phys' disattiva i DOI di default
+    url=true,
+    eprint=false,
+    giveninits=true,     % iniziali puntate: S. M. Carroll
+    maxbibnames=10
+]{biblatex}
+
+% --- Layout "manuale" delle referenze -------------------------------
+% Titoli in corsivo, con le maiuscole originali del .bib
+% ('phys' forza il sentence case: "Planck" diventerebbe "planck")
+\DeclareFieldFormat{titlecase}{#1}
+\DeclareFieldFormat{title}{\emph{#1}}
+\DeclareFieldFormat[article,inproceedings,patent]{title}{\emph{#1}}
+\DeclareFieldFormat[book,thesis,online]{title}{\emph{#1}}
+
+% DOI/URL stampati per esteso e cliccabili, su una riga a parte
+\DeclareFieldFormat{doi}{\url{https://doi.org/#1}}
+\DeclareFieldFormat{url}{\url{#1}}
+
+\renewbibmacro*{doi+eprint+url}{%
+    \iffieldundef{doi}
+        {\iffieldundef{url}
+            {}
+            {\setunit{\addcomma\space}\printfield{url}}}
+        {\setunit{\addcomma\space}\printfield{doi}}%
+}
+\renewbibmacro*{url+urldate}{%
+    \iffieldundef{url}
+        {}
+        {\setunit{\addcomma\space}\printfield{url}}%
+}
+
+% Punto finale solo se la voce non termina gia con un link
+\renewcommand*{\finentrypunct}{%
+    \iffieldundef{doi}{\iffieldundef{url}{\addperiod}{}}{}%
+}
+
+% Evita che gli URL vengano "stirati" (https : / / www . ...)
+\appto\biburlsetup{\Urlmuskip=0mu\relax}
+
+% Preferisce il DOI all'URL quando entrambi sono presenti
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{
+      \step[fieldsource=doi, final]
+      \step[fieldset=url, null]
+    }
+  }
+}
+
+
+% ---------------------------------------------------------------
+% 5. COMANDI PERSONALIZZATI ATTIVI
+% ---------------------------------------------------------------
+
+% Layout and modification
+\newcommand{\ToDo}[1]{{\color{grey} \\ \noindent [To do:  #1]\\ \noindent}}   % per segnalare dove modificare
+\newcommand{\?}{{\color{red}[??]}}   % per segnare dove andrà inserita una reference
+\newcommand{\pRef}[1]{{\color{d-green} \detokenize{#1}}}   % per segnare dove andrà meglio citata una reference
+\newcommand{\mmmhh}[1]{{\color{magenta} #1}}
+
+
+
+%short hand for Lagrangian notation
+\newcommand{\Lag}{\mathcal{L}}   % per simbolo di lagrangiana
+\newcommand{\LagEM}{\mathcal{L}_{\scriptscriptstyle \mathrm{EM}}}   % per simbolo canonical kinetic term
+\newcommand{\LagCFJ}{\mathcal{L}_{\scriptscriptstyle \mathrm{CFJ}}}   % per simbolo CS term in CFJ
+\newcommand{\LagN}{\mathcal{L}_{\scriptscriptstyle \mathrm{N}}}   % per simbolo CS term in Ni lagrangian
+\newcommand{\LagChi}{\mathcal{L}_{\raisebox{0.2ex}{\tiny$\chi$}}}   % per simbolo CS term in \chi lagrangian
+\newcommand{\LagK}{\mathcal{L}_{\scriptscriptstyle \mathrm{K}}}   % per simbolo canonical kinetic term
+
+%short hand for notation
+\newcommand{\0}{,\mathrm{o}}
+\newcommand{\fg}{{\scriptscriptstyle \mathrm{FG}}}
+\newcommand{\cmb}{{\scriptscriptstyle \mathrm{CMB}}}
+\newcommand{\TT}{{\scriptscriptstyle \mathrm{TT}}}
+\newcommand{\TE}{{\scriptscriptstyle \mathrm{TE}}}
+\newcommand{\TB}{{\scriptscriptstyle \mathrm{TB}}}
+\newcommand{\EE}{{\scriptscriptstyle \mathrm{EE}}}
+\newcommand{\BB}{{\scriptscriptstyle \mathrm{BB}}}
+\newcommand{\EB}{{\scriptscriptstyle \mathrm{EB}}}
+
+
+
+
+\setlength{\parskip}{3pt} % per piccole spaziature tra paragrafi
+
+% =====================================================================
+% 6. NON UTILIZZATI NELLA COMPILAZIONE ATTUALE
+%    (non cancellati: tenuti pronti per quando estenderai il testo)
+% =====================================================================
+\usepackage{graphicx}     % \includegraphics — non ancora usato, utile
+                          % appena inserirai figure/immagini.
+\graphicspath{{latex/generated/}{latex/figures/}}  % [ADDED] dove cercare le figure
+%\usepackage{bm}  % rimosso: non usato nel testo           % simboli in grassetto (\bm{...}) — non ancora
+                          % usato (per vettori si usa \mathbf/\boldsymbol).
+%\usepackage{siunitx}  % rimosso: non usato nel testo      % gestione delle unità di misura (\si, \SI, \num)
+                          % — non ancora usato nel testo.
+                          % ATTENZIONE: siunitx e physics possono entrare
+                          % in conflitto su alcuni comandi (es. \qty):
+                          % se in futuro userai entrambi, carica siunitx
+                          % PRIMA di physics oppure usa le opzioni di
+                          % compatibilità di physics.
+
+% Colore definito ma non richiamato in nessun comando/testo:
+% \definecolor{l-blue}{HTML}{4444FF}
+
+% Sfondo/testo colorato — riga opzionale, disattiva la pagina bianca:
+%\pagecolor[rgb]{0,0,0} %cambiare colore allo sfondo. Commentare per avere pag bianca
+%\color[rgb]{0.8,0.8,0.8} %cambiare colore al testo. Commentare per avere testo nero

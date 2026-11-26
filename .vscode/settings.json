@@ -1,0 +1,29 @@
+{
+  // Build = run python/compute.py with this project's .venv, then latexmk.
+  // Everything is relative to the project root (where main.tex is).
+  "latex-workshop.latex.tools": [
+    {
+      "name": "compute",
+      "command": ".venv\\Scripts\\python.exe",
+      "args": ["python/compute.py"],
+      "env": { "PYTHONUTF8": "1" }
+    },
+    {
+      "name": "latexmk",
+      "command": "latexmk",
+      "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "-pdf",
+               "-outdir=%OUTDIR%", "%DOC%"]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    { "name": "Python + latexmk", "tools": ["compute", "latexmk"] },
+    { "name": "latexmk only (skip Python)", "tools": ["latexmk"] }
+  ],
+  "latex-workshop.latex.recipe.default": "first",
+
+  // All LaTeX output (aux, log, bbl, PDF) goes to build/, keeping the root clean.
+  "latex-workshop.latex.outDir": "%DIR%/build",
+
+  // Do not rerun Python on every save: build with the button or Ctrl+Alt+B.
+  "latex-workshop.latex.autoBuild.run": "never"
+}

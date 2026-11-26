@@ -1,0 +1,15 @@
+% Example of a section kept in its own file (latex/chapters/example.tex).
+% It has no \documentclass or \begin{document}: it is only pasted into main.tex.
+% First line of such files, so that Ctrl+Alt+B works from this tab too:
+% !TEX root = ../../main.tex
+\section{Equations}
+    \label{s:eq}
+    The angular power spectra are
+    \begin{equation}
+        C_\ell^{XY} = 4\pi \int d\ln k\;\mathcal{P}(k)\,\Delta_{X\ell}(k)\,\Delta_{Y\ell}(k),
+        \label{eq:cl}
+    \end{equation}
+    with $X,Y\in\{T,E,B\}$. Equation~\eqref{eq:cl} is discussed in Sec.~\ref{s:intro}.
+    Your shorthand commands work as before, e.g.\ $C_\ell^{\TE}$, $C_\ell^{\EE}$, $C_\ell^{\BB}$.
+
+    \lipsum[3]

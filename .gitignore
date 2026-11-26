@@ -1,0 +1,35 @@
+# --- LaTeX build output (all of it lands in build/) -------------------
+build/
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+# PDFs can be rebuilt from the sources ...
+*.pdf
+# ... except the plots written by Python (kept so the paper builds without rerunning it)
+!latex/generated/*.pdf
+
+# --- Python -----------------------------------------------------------
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# --- C++ build products -----------------------------------------------
+*.o
+*.obj
+*.exe
+*.out.exe
+*.dll
+*.so
+
+# --- Large input data: uncomment if you do not want it in git ---------
+# data/
